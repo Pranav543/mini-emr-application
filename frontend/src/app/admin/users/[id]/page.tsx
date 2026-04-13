@@ -27,7 +27,7 @@ export default function UserDetailPage() {
 
     const fetchUser = async () => {
         try {
-            const res = await fetch(`http://127.0.0.1:8000/admin/users/${userId}`, { cache: "no-store" });
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'}/admin/users/${userId}`, { cache: "no-store" });
             const data = await res.json();
             setUser(data);
             setUserForm({ name: data.name, email: data.email });
@@ -39,8 +39,8 @@ export default function UserDetailPage() {
 
     const fetchDropdowns = async () => {
         const [meds, dos] = await Promise.all([
-            fetch(`http://127.0.0.1:8000/admin/medications`).then(r => r.json()),
-            fetch(`http://127.0.0.1:8000/admin/dosages`).then(r => r.json())
+            fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'}/admin/medications`).then(r => r.json()),
+            fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'}/admin/dosages`).then(r => r.json())
         ]);
         setMedications(meds);
         setDosages(dos);
@@ -53,7 +53,7 @@ export default function UserDetailPage() {
 
     const handleUpdateUser = async (e: React.FormEvent) => {
         e.preventDefault();
-        await fetch(`http://127.0.0.1:8000/admin/users/${userId}`, {
+        await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'}/admin/users/${userId}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(userForm),
@@ -65,7 +65,7 @@ export default function UserDetailPage() {
     const handleAddAppt = async (e: React.FormEvent) => {
         e.preventDefault();
         
-        await fetch(`http://127.0.0.1:8000/admin/users/${userId}/appointments`, {
+        await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'}/admin/users/${userId}/appointments`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             // Just send what the input says exactly, so backend stringifies it 'as-is'
@@ -77,13 +77,13 @@ export default function UserDetailPage() {
     };
 
     const handleDeleteAppt = async (id: number) => {
-        await fetch(`http://127.0.0.1:8000/admin/appointments/${id}`, { method: "DELETE" });
+        await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'}/admin/appointments/${id}`, { method: "DELETE" });
         fetchUser();
     };
 
     const handleAddPresc = async (e: React.FormEvent) => {
         e.preventDefault();
-        await fetch(`http://127.0.0.1:8000/admin/users/${userId}/prescriptions`, {
+        await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'}/admin/users/${userId}/prescriptions`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(prescForm),
@@ -94,7 +94,7 @@ export default function UserDetailPage() {
     };
 
     const handleDeletePresc = async (id: number) => {
-        await fetch(`http://127.0.0.1:8000/admin/prescriptions/${id}`, { method: "DELETE" });
+        await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'}/admin/prescriptions/${id}`, { method: "DELETE" });
         fetchUser();
     };
 

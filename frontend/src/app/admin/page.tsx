@@ -14,7 +14,7 @@ export default function AdminPage() {
 
     const fetchUsers = async () => {
         try {
-            const res = await fetch("http://127.0.0.1:8000/admin/users", { cache: "no-store" });
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'}/admin/users`, { cache: "no-store" });
             const data = await res.json();
             setUsers(data);
             setLoading(false);
@@ -32,7 +32,7 @@ export default function AdminPage() {
         setError("");
         
         try {
-            const res = await fetch("http://127.0.0.1:8000/admin/users", {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'}/admin/users`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(newUserForm),

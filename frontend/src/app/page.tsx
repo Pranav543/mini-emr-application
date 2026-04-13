@@ -45,7 +45,7 @@ export default function PatientDashboard() {
             return;
         }
 
-        fetch("http://127.0.0.1:8000/portal/me", {
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'}/portal/me`, {
             headers: {
                 "Authorization": `Bearer ${token}`
             }

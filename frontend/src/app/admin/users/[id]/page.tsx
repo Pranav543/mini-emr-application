@@ -64,14 +64,12 @@ export default function UserDetailPage() {
 
     const handleAddAppt = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Convert the local datetime-local value to an ISO string
-        // The HTML input type="datetime-local" yields "YYYY-MM-DDTHH:mm" (local time)
-        const localDate = new Date(apptForm.datetime);
         
         await fetch(`http://127.0.0.1:8000/admin/users/${userId}/appointments`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ ...apptForm, datetime: localDate.toISOString() }),
+            // Just send what the input says exactly, so backend stringifies it 'as-is'
+            body: JSON.stringify(apptForm),
         });
         setShowAddAppt(false);
         setApptForm({ provider: "", datetime: "", repeat: "" });

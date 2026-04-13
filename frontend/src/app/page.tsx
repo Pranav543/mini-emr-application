@@ -86,7 +86,7 @@ export default function PatientDashboard() {
                 <div className="bg-white rounded-lg shadow overflow-hidden">
                     <div className="p-6 border-b">
                         <h2 className="text-2xl font-bold text-gray-800">
-                            {viewMode === "appointments" ? "Upcoming Appointment Schedule" : "Upcoming Medication Refills"} <span className="text-sm font-normal text-gray-500">(Top 5)</span>
+                            {viewMode === "appointments" ? "Upcoming Appointment Schedule" : "Upcoming Medication Refills"}
                         </h2>
                     </div>
                     <div className="overflow-x-auto">
@@ -105,7 +105,7 @@ export default function PatientDashboard() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {(viewMode === "appointments" ? allAppointmentsProjected.slice(0, 5) : allRefillsProjected.slice(0, 5)).map((item, i) => (
+                                {(viewMode === "appointments" ? allAppointmentsProjected : allRefillsProjected).map((item, i) => (
                                     <tr key={`${item.id}-${i}`} className="border-b last:border-0 hover:bg-gray-50 transition-colors">
                                         <td className="p-4 font-semibold text-gray-800">{format(item.projectedDate, "PPP")}</td>
                                         {viewMode === "appointments" ? (

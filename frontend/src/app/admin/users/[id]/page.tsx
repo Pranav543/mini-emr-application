@@ -190,7 +190,7 @@ export default function UserDetailPage() {
                                                 setEditingApptId(a.id);
                                                 setApptForm({
                                                     provider: a.provider,
-                                                    datetime: new Date(a.datetime).toISOString().slice(0, 16),
+                                                    datetime: format(parseISO(a.datetime), "yyyy-MM-dd'T'HH:mm"),
                                                     repeat: a.repeat || ""
                                                 });
                                                 setShowAddAppt(true);
@@ -271,7 +271,7 @@ export default function UserDetailPage() {
                                 value={apptForm.datetime} 
                                 onChange={e => setApptForm({ ...apptForm, datetime: e.target.value })} 
                                 className="w-full border rounded p-2" 
-                                min={new Date().toISOString().slice(0, 16)}
+                                min={format(new Date(), "yyyy-MM-dd'T'HH:mm")}
                                 required 
                             />
                         </div>
@@ -323,7 +323,7 @@ export default function UserDetailPage() {
                                 value={prescForm.refill_on} 
                                 onChange={e => setPrescForm({ ...prescForm, refill_on: e.target.value })} 
                                 className="w-full border rounded p-2" 
-                                min={new Date().toISOString().split('T')[0]}
+                                min={format(new Date(), "yyyy-MM-dd")}
                                 required 
                             />
                         </div>

@@ -3,4 +3,4 @@ uvicorn
 sqlalchemy
 pydantic[email]
 PyJWT
-bcrypt
+bcryptpython-multipart

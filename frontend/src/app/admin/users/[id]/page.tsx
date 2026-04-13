@@ -18,6 +18,7 @@ export default function UserDetailPage() {
     // UI state
     const [showEditUser, setShowEditUser] = useState(false);
     const [showAddAppt, setShowAddAppt] = useState(false);
+    const [editingApptId, setEditingApptId] = useState<number | null>(null);
     const [showAddPresc, setShowAddPresc] = useState(false);
 
     // Form states
@@ -65,13 +66,21 @@ export default function UserDetailPage() {
     const handleAddAppt = async (e: React.FormEvent) => {
         e.preventDefault();
         
-        await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'}/admin/users/${userId}/appointments`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            // Just send what the input says exactly, so backend stringifies it 'as-is'
-            body: JSON.stringify(apptForm),
-        });
+        if (editingApptId) {
+            await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'}/admin/appointments/${editingApptId}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(apptForm),
+            });
+        } else {
+            await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'}/admin/users/${userId}/appointments`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(apptForm),
+            });
+        }
         setShowAddAppt(false);
+        setEditingApptId(null);
         setApptForm({ provider: "", datetime: "", repeat: "" });
         fetchUser();
     };
@@ -143,7 +152,11 @@ export default function UserDetailPage() {
                 <div className="bg-white rounded-lg shadow border overflow-hidden">
                     <div className="p-6 border-b flex justify-between items-center bg-gray-50">
                         <h2 className="text-xl font-bold text-gray-800">Appointments</h2>
-                        <button onClick={() => setShowAddAppt(true)} className="bg-blue-600 text-white text-sm px-3 py-1 rounded hover:bg-blue-700">+ Schedule</button>
+                        <button onClick={() => {
+                            setEditingApptId(null);
+                            setApptForm({ provider: "", datetime: "", repeat: "" });
+                            setShowAddAppt(true);
+                        }} className="bg-blue-600 text-white text-sm px-3 py-1 rounded hover:bg-blue-700">+ Schedule</button>
                     </div>
                     <div className="p-0">
                         <table className="min-w-full text-left border-collapse">
@@ -161,7 +174,16 @@ export default function UserDetailPage() {
                                         <td className="p-4 font-semibold">{a.provider}</td>
                                         <td className="p-4 text-gray-600 text-sm">{format(parseISO(a.datetime), "PPP 'at' p")}</td>
                                         <td className="p-4 text-gray-600 capitalize text-sm">{a.repeat || 'None'}</td>
-                                        <td className="p-4 text-right">
+                                        <td className="p-4 flex gap-4 justify-end">
+                                            <button onClick={() => {
+                                                setEditingApptId(a.id);
+                                                setApptForm({
+                                                    provider: a.provider,
+                                                    datetime: new Date(a.datetime).toISOString().slice(0, 16),
+                                                    repeat: a.repeat || ""
+                                                });
+                                                setShowAddAppt(true);
+                                            }} className="text-blue-500 hover:text-blue-700 text-sm font-medium">Edit</button>
                                             <button onClick={() => handleDeleteAppt(a.id)} className="text-red-500 hover:text-red-700 text-sm font-medium">Delete</button>
                                         </td>
                                     </tr>
@@ -211,7 +233,7 @@ export default function UserDetailPage() {
             {showAddAppt && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
                     <form onSubmit={handleAddAppt} className="bg-white p-6 rounded shadow max-w-sm w-full">
-                        <h2 className="text-xl font-bold mb-4">Schedule Appointment</h2>
+                        <h2 className="text-xl font-bold mb-4">{editingApptId ? "Edit Appointment" : "Schedule Appointment"}</h2>
                         <div className="mb-4">
                             <label className="block text-sm font-medium mb-1">Provider</label>
                             <input type="text" value={apptForm.provider} onChange={e => setApptForm({ ...apptForm, provider: e.target.value })} className="w-full border rounded p-2" required placeholder="Dr. Smith" />

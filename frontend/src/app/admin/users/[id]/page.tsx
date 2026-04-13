@@ -20,6 +20,7 @@ export default function UserDetailPage() {
     const [showAddAppt, setShowAddAppt] = useState(false);
     const [editingApptId, setEditingApptId] = useState<number | null>(null);
     const [showAddPresc, setShowAddPresc] = useState(false);
+    const [editingPrescId, setEditingPrescId] = useState<number | null>(null);
 
     // Form states
     const [userForm, setUserForm] = useState({ name: "", email: "" });
@@ -92,12 +93,22 @@ export default function UserDetailPage() {
 
     const handleAddPresc = async (e: React.FormEvent) => {
         e.preventDefault();
-        await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'}/admin/users/${userId}/prescriptions`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(prescForm),
-        });
+        
+        if (editingPrescId) {
+            await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'}/admin/prescriptions/${editingPrescId}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(prescForm),
+            });
+        } else {
+            await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'}/admin/users/${userId}/prescriptions`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(prescForm),
+            });
+        }
         setShowAddPresc(false);
+        setEditingPrescId(null);
         setPrescForm({ medication: "", dosage: "", quantity: 1, refill_schedule: "", refill_on: "" });
         fetchUser();
     };
@@ -197,7 +208,11 @@ export default function UserDetailPage() {
                 <div className="bg-white rounded-lg shadow border overflow-hidden">
                     <div className="p-6 border-b flex justify-between items-center bg-gray-50">
                         <h2 className="text-xl font-bold text-gray-800">Prescriptions</h2>
-                        <button onClick={() => setShowAddPresc(true)} className="bg-green-600 text-white text-sm px-3 py-1 rounded hover:bg-green-700">+ Prescribe</button>
+                        <button onClick={() => {
+                            setEditingPrescId(null);
+                            setPrescForm({ medication: "", dosage: "", quantity: 1, refill_schedule: "", refill_on: "" });
+                            setShowAddPresc(true);
+                        }} className="bg-green-600 text-white text-sm px-3 py-1 rounded hover:bg-green-700">+ Prescribe</button>
                     </div>
                     <div className="overflow-x-auto">
                         <table className="min-w-full text-left border-collapse">
@@ -218,7 +233,18 @@ export default function UserDetailPage() {
                                             <div>{format(parseISO(p.refill_on), "PPP")}</div>
                                             <div className="text-xs text-gray-500 capitalize">{p.refill_schedule || 'No repeated refills'}</div>
                                         </td>
-                                        <td className="p-4 text-right">
+                                        <td className="p-4 flex gap-4 justify-end">
+                                            <button onClick={() => {
+                                                setEditingPrescId(p.id);
+                                                setPrescForm({
+                                                    medication: p.medication,
+                                                    dosage: p.dosage,
+                                                    quantity: p.quantity,
+                                                    refill_schedule: p.refill_schedule || "",
+                                                    refill_on: p.refill_on
+                                                });
+                                                setShowAddPresc(true);
+                                            }} className="text-blue-500 hover:text-blue-700 text-sm font-medium">Edit</button>
                                             <button onClick={() => handleDeletePresc(p.id)} className="text-red-500 hover:text-red-700 text-sm font-medium">Delete</button>
                                         </td>
                                     </tr>
@@ -269,7 +295,7 @@ export default function UserDetailPage() {
             {showAddPresc && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
                     <form onSubmit={handleAddPresc} className="bg-white p-6 rounded shadow max-w-sm w-full">
-                        <h2 className="text-xl font-bold mb-4">Prescribe Medication</h2>
+                        <h2 className="text-xl font-bold mb-4">{editingPrescId ? "Edit Prescription" : "Prescribe Medication"}</h2>
                         <div className="mb-4">
                             <label className="block text-sm font-medium mb-1">Medication</label>
                             <select value={prescForm.medication} onChange={e => setPrescForm({ ...prescForm, medication: e.target.value })} className="w-full border rounded p-2 bg-white text-gray-900" required>

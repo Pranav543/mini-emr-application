@@ -218,7 +218,14 @@ export default function UserDetailPage() {
                         </div>
                         <div className="mb-4">
                             <label className="block text-sm font-medium mb-1">Date & Time</label>
-                            <input type="datetime-local" value={apptForm.datetime} onChange={e => setApptForm({ ...apptForm, datetime: e.target.value })} className="w-full border rounded p-2" required />
+                            <input 
+                                type="datetime-local" 
+                                value={apptForm.datetime} 
+                                onChange={e => setApptForm({ ...apptForm, datetime: e.target.value })} 
+                                className="w-full border rounded p-2" 
+                                min={new Date().toISOString().slice(0, 16)}
+                                required 
+                            />
                         </div>
                         <div className="mb-6">
                             <label className="block text-sm font-medium mb-1">Recurring</label>
@@ -263,7 +270,14 @@ export default function UserDetailPage() {
                         </div>
                         <div className="mb-4">
                             <label className="block text-sm font-medium mb-1">First Refill Date</label>
-                            <input type="date" value={prescForm.refill_on} onChange={e => setPrescForm({ ...prescForm, refill_on: e.target.value })} className="w-full border rounded p-2" required />
+                            <input 
+                                type="date" 
+                                value={prescForm.refill_on} 
+                                onChange={e => setPrescForm({ ...prescForm, refill_on: e.target.value })} 
+                                className="w-full border rounded p-2" 
+                                min={new Date().toISOString().split('T')[0]}
+                                required 
+                            />
                         </div>
                         <div className="mb-6">
                             <label className="block text-sm font-medium mb-1">Refill Schedule</label>

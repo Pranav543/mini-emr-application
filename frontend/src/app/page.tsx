@@ -29,7 +29,7 @@ function calculateProjections(items: any[], dateField: string, repeatField: stri
         }
     });
 
-    return projections.sort((a, b) => a.projectedDate.getTime() - b.projectedDate.getTime()).slice(0, 5);
+    return projections.sort((a, b) => a.projectedDate.getTime() - b.projectedDate.getTime());
 }
 
 export default function PatientDashboard() {
@@ -105,7 +105,7 @@ export default function PatientDashboard() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {(viewMode === "appointments" ? allAppointmentsProjected : allRefillsProjected).map((item, i) => (
+                                {(viewMode === "appointments" ? allAppointmentsProjected.slice(0, 5) : allRefillsProjected.slice(0, 5)).map((item, i) => (
                                     <tr key={`${item.id}-${i}`} className="border-b last:border-0 hover:bg-gray-50 transition-colors">
                                         <td className="p-4 font-semibold text-gray-800">{format(item.projectedDate, "PPP")}</td>
                                         {viewMode === "appointments" ? (
@@ -189,15 +189,26 @@ export default function PatientDashboard() {
                             </tr>
                         </thead>
                         <tbody>
-                            {user.prescriptions.map((p: any) => (
+                            {[...user.prescriptions].sort((a: any, b: any) => {
+                                const nextA = allRefillsProjected.find((proj: any) => proj.id === a.id);
+                                const nextB = allRefillsProjected.find((proj: any) => proj.id === b.id);
+                                const timeA = nextA ? nextA.projectedDate.getTime() : Infinity;
+                                const timeB = nextB ? nextB.projectedDate.getTime() : Infinity;
+                                return timeA - timeB;
+                            }).map((p: any) => {
+                                const nextRefill = allRefillsProjected.find((proj: any) => proj.id === p.id);
+                                return (
                                 <tr key={p.id} className="border-b last:border-0 hover:bg-gray-50 transition-colors">
                                     <td className="p-4 font-semibold text-gray-800">{p.medication}</td>
                                     <td className="p-4 text-gray-600">{p.dosage}</td>
                                     <td className="p-4 text-gray-600">{p.quantity}</td>
-                                    <td className="p-4 text-gray-600 capitalize">{p.refill_schedule}</td>
-                                    <td className="p-4 text-gray-600">{format(new Date(p.refill_on), "PPP")}</td>
+                                    <td className="p-4 text-gray-600 capitalize">{p.refill_schedule || 'None'}</td>
+                                    <td className="p-4 text-gray-600">
+                                        {nextRefill ? format(nextRefill.projectedDate, "PPP") : <span className="text-gray-400 italic">No upcoming refills</span>}
+                                    </td>
                                 </tr>
-                            ))}
+                                )
+                            })}
                         </tbody>
                     </table>
                 </div>
